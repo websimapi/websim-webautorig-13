@@ -480,11 +480,6 @@ button.primary-btn:hover:not(:disabled) {
         background-color: rgba(0, 170, 255, 0.2);
     }
 
-    #mobile-action-buttons {
-        display: flex;
-        gap: 0.5rem;
-    }
-    
     .icon-btn {
         flex-shrink: 0;
         width: 48px;
@@ -495,28 +490,16 @@ button.primary-btn:hover:not(:disabled) {
         background-repeat: no-repeat;
     }
 
-    /* Preview View on Mobile */
-    #preview-viewer-container {
-        flex-grow: 1;
-        flex-basis: 0;
-        min-height: 200px;
+    .icon-btn.active {
+        background-color: rgba(0, 170, 255, 0.2);
+        border-color: var(--primary-color);
     }
 
-    #preview-panel {
-        width: 100%;
-        max-width: 100%;
-        border-left: none;
-        border-top: 1px solid var(--border-color);
-        border-radius: 0;
-        flex-shrink: 0;
-        padding: 1rem;
-        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    #mobile-action-buttons {
+        display: flex;
+        gap: 0.5rem;
     }
-
-    #preview-panel h2, #preview-panel p {
-        display: none;
-    }
-
+    
     #mobile-preview-controls {
         display: flex;
         align-items: center;

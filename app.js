@@ -44,6 +44,7 @@ export class App {
             onStartOver: () => this.resetApp(),
             onExport: () => this.exportRiggedModel(),
             onSkeletonToggle: (visible) => this.previewViewer?.toggleSkeleton(visible),
+            onMeshToggle: (visible) => this.previewViewer?.toggleMesh(visible),
             onAnimationChange: (name) => this.previewViewer?.playAnimation(name)
         });
     }

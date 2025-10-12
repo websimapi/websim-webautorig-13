@@ -158,6 +158,12 @@ export class Viewer {
         }
     }
 
+    toggleMesh(visible) {
+        if (this.model) {
+            this.model.visible = visible;
+        }
+    }
+
     playAnimation(name) {
         if (this.activeAction) {
             this.activeAction.fadeOut(0.5);
