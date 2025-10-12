@@ -87,4 +87,3 @@ export class PreviewControls {
         this.skeletonVisible = false;
     }
 }
-

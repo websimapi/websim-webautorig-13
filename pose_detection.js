@@ -195,6 +195,7 @@ export async function detectPoseAndPlaceMarkers(viewer, onProgress) {
             viewer.raycaster.setFromCamera(new THREE.Vector2(ndcX + ox, ndcY + oy), viewer.camera);
             centeredPoint = viewer.getIntersectionCenter(viewer.raycaster);
             if (centeredPoint) {
+                console.log(`Used offset for ${landmarkName}`);
                 return centeredPoint;
             }
         }

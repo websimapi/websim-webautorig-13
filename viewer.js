@@ -193,12 +193,16 @@ export class Viewer {
         const centeredPoint = this.getIntersectionCenter(this.raycaster);
         if (centeredPoint) {
             this.placeMarker(this.activeMarkerId, centeredPoint);
+            // After placing, we can notify that the operation was successful.
+            // This is useful for pose detection which relies on this function.
+            this.onMarkerPlaced(this.activeMarkerId, centeredPoint.clone());
         }
     }
 
     getIntersectionCenter(raycaster) {
         if (!this.model) return null;
         
+        // Cast a ray from the camera and get the first intersection (the front face)
         const intersects = raycaster.intersectObject(this.model, true);
         if (intersects.length === 0) {
             return null;
@@ -206,41 +210,28 @@ export class Viewer {
 
         const pointFront = intersects[0].point;
 
-        // Define the "opposite camera position" relative to the model's center.
-        const modelBox = new THREE.Box3().setFromObject(this.model);
-        const modelCenter = modelBox.getCenter(new THREE.Vector3());
-
-        // Vector from model center to camera
-        const cameraVec = this.camera.position.clone().sub(modelCenter);
-        // Position of opposite camera is mirrored through the model center
-        const oppositeCameraPos = modelCenter.clone().sub(cameraVec);
+        // To find the corresponding point on the back face, we'll cast another ray
+        // from a point far behind the model, in the opposite direction of the original ray.
+        const ray = raycaster.ray;
         
-        // Create a new raycaster from this opposite position, looking towards the front intersection point.
-        const directionToFront = pointFront.clone().sub(oppositeCameraPos).normalize();
-        const oppositeRaycaster = new THREE.Raycaster(oppositeCameraPos, directionToFront);
+        // Start from a point far away along the ray's direction.
+        const farPoint = ray.origin.clone().add(ray.direction.clone().multiplyScalar(100));
+        
+        // Create a new raycaster pointing back towards the origin.
+        const oppositeRaycaster = new THREE.Raycaster(farPoint, ray.direction.clone().negate());
         
         const backIntersects = oppositeRaycaster.intersectObject(this.model, true);
 
         if (backIntersects.length === 0) {
-            // If no back intersection is found, just use the front point.
+            // This case is unlikely if the first ray hit, but as a fallback,
+            // we return the front-most point. This can happen with single-sided geometry.
             return pointFront;
         }
 
-        // Find the intersection on the back side that is closest to our front point.
-        // This handles cases where the ray from the back might pass through multiple model parts.
-        let pointBack = backIntersects[0].point;
-        if (backIntersects.length > 1) {
-            let closestDistSq = Infinity;
-            for (const hit of backIntersects) {
-                const distSq = hit.point.distanceToSquared(pointFront);
-                if (distSq < closestDistSq) {
-                    closestDistSq = distSq;
-                    pointBack = hit.point;
-                }
-            }
-        }
+        // The first intersection from the opposite ray is our back point.
+        const pointBack = backIntersects[0].point;
         
-        // The final marker position is the midpoint.
+        // The final marker position is the midpoint between the front and back intersections.
         const centerPoint = pointFront.clone().lerp(pointBack, 0.5);
         
         return centerPoint;
@@ -262,6 +253,8 @@ export class Viewer {
             this.markers.add(markerMesh);
         }
 
+        // This call is now redundant if called in onPointerDown.
+        // It's kept here for direct calls to placeMarker (like from pose detection)
         this.onMarkerPlaced(markerId, position.clone());
     }
 
